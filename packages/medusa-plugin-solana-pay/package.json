@@ -1,0 +1,38 @@
+{
+  "name": "medusa-plugin-solana-pay",
+  "version": "0.0.1",
+  "description": "Solana payment provider for Medusa",
+  "keywords": [
+    "Medusa",
+    "Solana",
+    "ecommerce",
+    "crypto",
+    "payment"
+  ],
+  "author": "fPolic <frane@medusajs.com>",
+  "homepage": "https://github.com/medusajs/medusa/packages/medusa-plugin-solana-pay#readme",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/medusajs/medusa.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "cross-env NODE_ENV=production npm run build",
+    "test": "jest"
+  },
+  "bugs": {
+    "url": "https://github.com/medusajs/medusa/issues"
+  },
+  "peerDependencies": {
+    "medusa-interfaces": "1.x"
+  },
+  "dependencies": {
+    "typescript": "^4.6.4"
+  }
+}

@@ -1,2 +1,3 @@
-export * from "./api"
+/// <reference types="./lib.d..ts" />
+
 export * from "./subscribers"
