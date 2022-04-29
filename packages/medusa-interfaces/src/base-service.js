@@ -295,4 +295,5 @@ class BaseService {
     }, Promise.resolve(obj))
   }
 }
+
 export default BaseService

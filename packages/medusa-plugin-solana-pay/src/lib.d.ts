@@ -1,3 +1,3 @@
 declare module "medusa-interfaces" {
-  class PaymentService {}
+  abstract class PaymentService {}
 }
