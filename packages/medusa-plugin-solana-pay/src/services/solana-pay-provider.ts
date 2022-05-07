@@ -1,37 +1,127 @@
-import { Cluster, clusterApiUrl, Connection, PublicKey } from "@solana/web3.js"
-import { encodeURL, createQR } from "@solana/pay"
+import {
+  Cluster,
+  clusterApiUrl,
+  Connection,
+  PublicKey,
+  Keypair,
+} from "@solana/web3.js"
+import {
+  encodeURL,
+  createQR,
+  findReference,
+  validateTransfer,
+} from "@solana/pay"
 import BigNumber from "bignumber.js"
 
 import { PaymentService } from "medusa-interfaces"
+import { Cart, RegionService, TotalsService } from "@medusajs/medusa"
+
+type SolanaPayProviderOptions = {}
+
+type DIParams = { totalsService: TotalsService; regionService: RegionService }
 
 class SolanaPayProvider extends PaymentService {
-  constructor() {
+  private connection: any
+
+  static identifier = "solana-pay"
+  static USDC_MINT_ADDRESS = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+
+  private regionService_: RegionService
+  private totalsService_: TotalsService
+  private options_: SolanaPayProviderOptions
+
+  constructor(
+    { totalsService, regionService }: DIParams,
+    options: SolanaPayProviderOptions
+  ) {
     super()
 
-    // TODO: read nwtwork config from the env
-    this.connection = new Connection(clusterApiUrl("devnet"), "confirmed")
+    this.options_ = options
+
+    // TODO: read network config from the env
+    this.connection = new Connection(clusterApiUrl("devnet"), "finalized")
+
+    this.regionService_ = regionService
+
+    this.totalsService_ = totalsService
   }
 
-  createPayment(cart) {
+  /**
+   * Create Solana payment request link.
+   * @param cart
+   * @returns Promise<object> - promise which resolves to an object containing a Solana payment link.
+   */
+  async createPayment(cart: Cart): Promise<object> {
     // TODO: read merchant's wallet address from the env
+    const recipient = new PublicKey(
+      "F3SLm4LXUJ2TogyDomr1MtYYXp717VWWJQNaY8Brs6cL"
+    )
 
-    const recipient = new PublicKey("MERCHANT_WALLET")
+    // TODO: calculate amount
 
-    // TODO: calcualte amount
-    const amount = new BigNumber(cart.payment.amount)
+    const { region_id } = cart
+    const { currency_code } = await this.regionService_.retrieve(region_id)
 
-    // create unique refference for this session which will alter be used to find transaction on the chain
+    if (currency_code !== "usd") {
+      // TODO: throw error
+    }
+
+    const amount = await this.totalsService_.getTotal(cart)
+
+    // create unique reference for this session which will alter be used to find transaction on the chain
     const reference = new Keypair().publicKey
 
-    const label = "Medusa store"
-    const message = "msg TODO add reference"
-    const memo = "JC#4098"
+    const usdcToken = new PublicKey(SolanaPayProvider.USDC_MINT_ADDRESS)
+
+    const url = encodeURL({
+      amount: new BigNumber(amount),
+      recipient,
+      reference,
+    })
+
+    return { amount, recipient, reference, url, splToken: usdcToken }
   }
 
-  // retrievePayment(cart) {
-  //   throw Error("getPayment must be overridden by the child class")
-  // }
-  //
+  /*
+   * Find the payment on the blockchain using reference.
+   */
+  async retrievePayment(data: object): Promise<any> {
+    const { amount, reference } = data
+
+    try {
+      const sigInfo = await findReference(this.connection, reference, {
+        finality: "finalized",
+      })
+
+      await validateTransfer(this.connection, sigInfo.signature, {
+        recipient: this.options.address,
+        amount,
+      })
+
+      return
+    } catch (e) {}
+  }
+
+  async getStatus(data: object): Promise<string> {
+    return (await retrievePayment(data)) ? "authorized" : "pending"
+  }
+
+  async authorizePayment(session, context = {}) {
+    const stat = await this.getStatus(session.data)
+    try {
+      return { data: session.data, status: stat }
+    } catch (error) {
+      throw error
+    }
+  }
+
+  /*
+   * Blockchain...
+   */
+  async deletePayment(): Promise<void> {
+    return
+  }
+
   // updatePayment(cart) {
   //   throw Error("updatePayment must be overridden by the child class")
   // }
