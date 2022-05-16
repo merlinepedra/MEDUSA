@@ -16,11 +16,21 @@ import BigNumber from "bignumber.js"
 import { PaymentService } from "medusa-interfaces"
 import { Cart, RegionService, TotalsService } from "@medusajs/medusa"
 
-type SolanaPayProviderOptions = {}
+type SolanaPayProviderOptions = {
+  walletAddress: string
+}
+
+type SolanaPaymentSessionData = {
+  amount: number
+  recipient: string
+  reference: string
+  url: string
+  splToken: string
+}
 
 type DIParams = { totalsService: TotalsService; regionService: RegionService }
 
-class SolanaPayProvider extends PaymentService {
+class SolanaPayProviderService extends PaymentService {
   private connection: any
 
   static identifier = "solana-pay"
@@ -36,7 +46,10 @@ class SolanaPayProvider extends PaymentService {
   ) {
     super()
 
-    this.options_ = options
+    this.options_ = options || {
+      // TODO: REMOVE TEST ADDRESS
+      walletAddress: "F3SLm4LXUJ2TogyDomr1MtYYXp717VWWJQNaY8Brs6cL",
+    }
 
     // TODO: read network config from the env
     this.connection = new Connection(clusterApiUrl("devnet"), "finalized")
@@ -47,15 +60,13 @@ class SolanaPayProvider extends PaymentService {
   }
 
   /**
-   * Create Solana payment request link.
+   * Create initial `data` for a paymentSession.
    * @param cart
    * @returns Promise<object> - promise which resolves to an object containing a Solana payment link.
    */
-  async createPayment(cart: Cart): Promise<object> {
+  async createPayment(cart: Cart): Promise<SolanaPaymentSessionData> {
     // TODO: read merchant's wallet address from the env
-    const recipient = new PublicKey(
-      "F3SLm4LXUJ2TogyDomr1MtYYXp717VWWJQNaY8Brs6cL"
-    )
+    const recipient = new PublicKey(this.options_.walletAddress)
 
     // TODO: calculate amount
 
@@ -71,7 +82,7 @@ class SolanaPayProvider extends PaymentService {
     // create unique reference for this session which will alter be used to find transaction on the chain
     const reference = new Keypair().publicKey
 
-    const usdcToken = new PublicKey(SolanaPayProvider.USDC_MINT_ADDRESS)
+    const usdcToken = new PublicKey(SolanaPayProviderService.USDC_MINT_ADDRESS)
 
     const url = encodeURL({
       amount: new BigNumber(amount),
@@ -85,7 +96,7 @@ class SolanaPayProvider extends PaymentService {
   /*
    * Find the payment on the blockchain using reference.
    */
-  async retrievePayment(data: object): Promise<any> {
+  async retrievePayment(data: SolanaPaymentSessionData): Promise<any> {
     const { amount, reference } = data
 
     try {
@@ -103,7 +114,7 @@ class SolanaPayProvider extends PaymentService {
   }
 
   async getStatus(data: object): Promise<string> {
-    return (await retrievePayment(data)) ? "authorized" : "pending"
+    return (await this.retrievePayment(data)) ? "authorized" : "pending"
   }
 
   async authorizePayment(session, context = {}) {
@@ -122,9 +133,13 @@ class SolanaPayProvider extends PaymentService {
     return
   }
 
-  // updatePayment(cart) {
-  //   throw Error("updatePayment must be overridden by the child class")
-  // }
+  async updatePayment(
+    sessionData: SolanaPaymentSessionData
+    // cart: Cart
+  ): Promise<SolanaPaymentSessionData> {
+    // TODO: update amount
+    return sessionData
+  }
   //
   // getStatus() {
   //   throw Error("getStatus must be overridden by the child class")
@@ -145,6 +160,10 @@ class SolanaPayProvider extends PaymentService {
   // deletePayment() {
   //   throw Error("deletePayment must be overridden by the child class")
   // }
+
+  private encodePaymentSessionData() {}
+
+  private decodePaymentSessionData() {}
 }
 
-export default SolanaPayProvider
+export default SolanaPayProviderService
