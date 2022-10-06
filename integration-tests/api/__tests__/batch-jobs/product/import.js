@@ -134,7 +134,6 @@ describe("Product import batch job", () => {
 
     const productsResponse = await api.get("/admin/products", adminReqConfig)
 
-    console.log(JSON.stringify(productsResponse.data.products))
     expect(productsResponse.data.count).toBe(2)
     expect(productsResponse.data.products).toEqual(
       expect.arrayContaining([

@@ -41,7 +41,7 @@ describe("Product import - Sales Channel", () => {
       env: { MEDUSA_FF_SALES_CHANNELS: true },
       redisUrl: "redis://127.0.0.1:6379",
       uploadDir: __dirname,
-      verbose: false,
+      verbose: true,
     })
     dbConnection = connection
     medusaProcess = process
@@ -118,7 +118,7 @@ describe("Product import - Sales Channel", () => {
 
     const productsResponse = await api.get("/admin/products", adminReqConfig)
 
-    expect(productsResponse.data.count).toBe(2)
+    expect(productsResponse.data.count).toBe(1)
     expect(productsResponse.data.products).toEqual([
       expect.objectContaining({
         id: "O6S1YQ6mKm",
@@ -142,25 +142,6 @@ describe("Product import - Sales Channel", () => {
             is_disabled: false,
           }),
         ],
-      }),
-      expect.objectContaining({
-        id: "5VxiEkmnPV",
-        title: "Test product",
-        description: "test-product-description",
-        handle: "test-product-product-2",
-        variants: [
-          expect.objectContaining({
-            title: "Test variant",
-            product_id: "5VxiEkmnPV",
-            sku: "test-sku-2",
-          }),
-          expect.objectContaining({
-            title: "Test variant",
-            product_id: "5VxiEkmnPV",
-            sku: "test-sku-3",
-          }),
-        ],
-        sales_channels: [],
       }),
     ])
   })
