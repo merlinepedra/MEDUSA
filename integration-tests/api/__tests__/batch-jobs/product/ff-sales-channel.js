@@ -41,7 +41,7 @@ describe("Product import - Sales Channel", () => {
       env: { MEDUSA_FF_SALES_CHANNELS: true },
       redisUrl: "redis://127.0.0.1:6379",
       uploadDir: __dirname,
-      verbose: true,
+      verbose: false,
     })
     dbConnection = connection
     medusaProcess = process
@@ -121,14 +121,13 @@ describe("Product import - Sales Channel", () => {
     expect(productsResponse.data.count).toBe(1)
     expect(productsResponse.data.products).toEqual([
       expect.objectContaining({
-        id: "O6S1YQ6mKm",
         title: "Test product",
-        description: "test-product-description-1",
+        description:
+          "Hopper Stripes Bedding, available as duvet cover, pillow sham and sheet.\\n100% organic cotton, soft and crisp to the touch. Made in Portugal.",
         handle: "test-product-product-1",
         variants: [
           expect.objectContaining({
             title: "Test variant",
-            product_id: "O6S1YQ6mKm",
             sku: "test-sku-1",
           }),
         ],
