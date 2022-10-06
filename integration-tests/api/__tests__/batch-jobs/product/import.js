@@ -77,6 +77,18 @@ describe("Product import batch job", () => {
       {
         id: "existing-product-id",
         title: "Test product",
+        options: [{ id: "opt-1-id", title: "Size" }],
+        variants: [
+          {
+            id: "existing-variant-id",
+            options: [
+              {
+                option_id: "opt-1-id",
+                value: "Large",
+              },
+            ],
+          },
+        ],
       }
     )
 

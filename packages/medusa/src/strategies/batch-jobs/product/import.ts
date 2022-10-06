@@ -305,23 +305,9 @@ class ProductImportStrategy extends AbstractBatchJobStrategy {
         .withTransaction(manager)
         .retrieve(batchJobId)) as ProductImportBatchJob
 
-      try {
-        await this.createProducts(batchJob)
-      } catch (e) {
-        console.log("her 45", e)
-      }
-
-      try {
-        await this.updateProducts(batchJob)
-      } catch (e) {
-        console.log("her 45", e)
-      }
-
-      try {
-        await this.createVariants(batchJob)
-      } catch (e) {
-        console.log("her 45", e)
-      }
+      await this.createProducts(batchJob)
+      await this.updateProducts(batchJob)
+      await this.createVariants(batchJob)
       await this.updateVariants(batchJob)
       await this.finalize(batchJob)
     })
@@ -458,6 +444,8 @@ class ProductImportStrategy extends AbstractBatchJobStrategy {
             >[]
           )
         }
+
+        delete productData.options // for now not supported in the update method
 
         await productServiceTx.update(
           productOp["product.id"] as string,
