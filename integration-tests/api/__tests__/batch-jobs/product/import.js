@@ -135,7 +135,6 @@ describe("Product import batch job", () => {
     expect(productsResponse.data.products).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: "O6S1YQ6mKm",
           title: "Test product",
           description:
             "Hopper Stripes Bedding, available as duvet cover, pillow sham and sheet.\\n100% organic cotton, soft and crisp to the touch. Made in Portugal.",
@@ -146,7 +145,6 @@ describe("Product import batch job", () => {
           variants: [
             expect.objectContaining({
               title: "Test variant",
-              product_id: "O6S1YQ6mKm",
               sku: "test-sku-1",
               barcode: "test-barcode-1",
               ean: null,
@@ -200,7 +198,7 @@ describe("Product import batch job", () => {
           ],
         }),
         expect.objectContaining({
-          id: "5VxiEkmnPV",
+          id: existingProductToBeUpdated.id,
           title: "Test product",
           description: "test-product-description",
           handle: "test-product-product-2",
@@ -211,7 +209,7 @@ describe("Product import batch job", () => {
           variants: [
             expect.objectContaining({
               title: "Test variant",
-              product_id: "5VxiEkmnPV",
+              product_id: existingProductToBeUpdated.id,
               sku: "test-sku-2",
               barcode: "test-barcode-2",
               ean: null,
@@ -234,7 +232,7 @@ describe("Product import batch job", () => {
             }),
             expect.objectContaining({
               title: "Test variant",
-              product_id: "5VxiEkmnPV",
+              product_id: existingProductToBeUpdated.id,
               sku: "test-sku-3",
               barcode: "test-barcode-3",
               ean: null,
