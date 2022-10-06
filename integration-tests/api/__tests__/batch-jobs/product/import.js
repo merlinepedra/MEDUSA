@@ -8,6 +8,7 @@ const { initDb, useDb } = require("../../../../helpers/use-db")
 const adminSeeder = require("../../../helpers/admin-seeder")
 const batchJobSeeder = require("../../../helpers/batch-job-seeder")
 const userSeeder = require("../../../helpers/user-seeder")
+const { simpleProductFactory } = require("../../../factories")
 
 const adminReqConfig = {
   headers: {
@@ -38,7 +39,7 @@ describe("Product import batch job", () => {
       cwd,
       redisUrl: "redis://127.0.0.1:6379",
       uploadDir: __dirname,
-      verbose: false,
+      verbose: true,
     })
   })
 
@@ -70,6 +71,14 @@ describe("Product import batch job", () => {
   it("should import a csv file", async () => {
     jest.setTimeout(1000000)
     const api = useApi()
+
+    const existingProductToBeUpdated = await simpleProductFactory(
+      dbConnection,
+      {
+        id: "existing-product-id",
+        title: "Test product",
+      }
+    )
 
     const response = await api.post(
       "/admin/batch-jobs",
