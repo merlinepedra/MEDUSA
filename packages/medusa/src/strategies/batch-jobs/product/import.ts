@@ -205,11 +205,10 @@ class ProductImportStrategy extends AbstractBatchJobStrategy {
           record.region_id = region.id
           record.currency_code = region.currency_code
         } catch (e) {
-          continue
-          // throw new MedusaError(
-          //   MedusaError.Types.INVALID_DATA,
-          //   `Trying to set a price for a region ${price.regionName} that doesn't exist`
-          // )
+          throw new MedusaError(
+            MedusaError.Types.INVALID_DATA,
+            `Trying to set a price for a region ${price.regionName} that doesn't exist`
+          )
         }
       } else {
         record.currency_code = price.currency_code
