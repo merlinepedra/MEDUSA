@@ -299,8 +299,6 @@ class ProductImportStrategy extends AbstractBatchJobStrategy {
    */
   async processJob(batchJobId: string): Promise<void> {
     return await this.atomicPhase_(async (manager) => {
-      console.log("===HERE")
-
       const batchJob = (await this.batchJobService_
         .withTransaction(manager)
         .retrieve(batchJobId)) as ProductImportBatchJob

@@ -39,7 +39,7 @@ describe("Product import batch job", () => {
       cwd,
       redisUrl: "redis://127.0.0.1:6379",
       uploadDir: __dirname,
-      verbose: true,
+      verbose: false,
     })
   })
 
@@ -81,6 +81,9 @@ describe("Product import batch job", () => {
         variants: [
           {
             id: "existing-variant-id",
+            title: "Initial tile",
+            sku: "test-sku-4",
+            barde: "test-barcode-4",
             options: [
               {
                 option_id: "opt-1-id",
@@ -131,9 +134,11 @@ describe("Product import batch job", () => {
 
     const productsResponse = await api.get("/admin/products", adminReqConfig)
 
+    console.log(JSON.stringify(productsResponse.data.products))
     expect(productsResponse.data.count).toBe(2)
     expect(productsResponse.data.products).toEqual(
       expect.arrayContaining([
+        // NEW PRODUCT
         expect.objectContaining({
           title: "Test product",
           description:
@@ -143,6 +148,7 @@ describe("Product import batch job", () => {
           status: "draft",
           thumbnail: "test-image.png",
           variants: [
+            // NEW VARIANT
             expect.objectContaining({
               title: "Test variant",
               sku: "test-sku-1",
@@ -166,14 +172,14 @@ describe("Product import batch job", () => {
                   region_id: "region-product-import-1",
                 }),
               ],
-              options: [
+              options: expect.arrayContaining([
                 expect.objectContaining({
                   value: "option 1 value red",
                 }),
                 expect.objectContaining({
                   value: "option 2 value 1",
                 }),
-              ],
+              ]),
             }),
           ],
           images: [
@@ -184,11 +190,9 @@ describe("Product import batch job", () => {
           options: [
             expect.objectContaining({
               title: "test-option-1",
-              product_id: "O6S1YQ6mKm",
             }),
             expect.objectContaining({
               title: "test-option-2",
-              product_id: "O6S1YQ6mKm",
             }),
           ],
           tags: [
@@ -197,6 +201,7 @@ describe("Product import batch job", () => {
             }),
           ],
         }),
+        // UPDATED PRODUCT
         expect.objectContaining({
           id: existingProductToBeUpdated.id,
           title: "Test product",
@@ -206,7 +211,21 @@ describe("Product import batch job", () => {
           status: "draft",
           thumbnail: "test-image.png",
           profile_id: expect.any(String),
-          variants: [
+          variants: expect.arrayContaining([
+            // UPDATED VARIANT
+            expect.objectContaining({
+              id: "existing-variant-id",
+              title: "Test variant changed",
+              sku: "test-sku-4",
+              barcode: "test-barcode-4",
+              options: [
+                expect.objectContaining({
+                  value: "Large",
+                  option_id: "opt-1-id",
+                }),
+              ],
+            }),
+            // CREATED VARIANT
             expect.objectContaining({
               title: "Test variant",
               product_id: existingProductToBeUpdated.id,
@@ -226,10 +245,12 @@ describe("Product import batch job", () => {
               ],
               options: [
                 expect.objectContaining({
-                  value: "Option 1 value 1",
+                  value: "Small",
+                  option_id: "opt-1-id",
                 }),
               ],
             }),
+            // CREATED VARIANT
             expect.objectContaining({
               title: "Test variant",
               product_id: existingProductToBeUpdated.id,
@@ -249,11 +270,12 @@ describe("Product import batch job", () => {
               ],
               options: [
                 expect.objectContaining({
-                  value: "Option 1 Value blue",
+                  value: "Medium",
+                  option_id: "opt-1-id",
                 }),
               ],
             }),
-          ],
+          ]),
           images: [
             expect.objectContaining({
               url: "test-image.png",
@@ -261,8 +283,9 @@ describe("Product import batch job", () => {
           ],
           options: [
             expect.objectContaining({
-              title: "test-option",
-              product_id: "5VxiEkmnPV",
+              product_id: existingProductToBeUpdated.id,
+              id: "opt-1-id",
+              title: "Size",
             }),
           ],
           tags: [
