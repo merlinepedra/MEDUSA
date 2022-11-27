@@ -205,10 +205,14 @@ class LineItemService extends TransactionBaseService {
     quantity?: number,
     context: GenerateLineItemContext = {}
   ): Promise<TResult> {
-    this.validateGenerateArguments(variantIdOrData, regionIdOrContext, quantity)
-
     return await this.atomicPhase_(
       async (transactionManager: EntityManager) => {
+        this.validateGenerateArguments(
+          variantIdOrData,
+          regionIdOrContext,
+          quantity
+        )
+
         const data = isString(variantIdOrData)
           ? {
               variantId: variantIdOrData,

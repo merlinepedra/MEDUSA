@@ -557,7 +557,7 @@ class CartService extends TransactionBaseService {
    */
   protected async validateLineItem(
     { sales_channel_id }: { sales_channel_id: string | null },
-    lineItem: LineItem
+    lineItem: { variant?: { product_id: string }; variant_id: string }
   ): Promise<boolean> {
     if (!sales_channel_id) {
       return true
@@ -780,6 +780,8 @@ class CartService extends TransactionBaseService {
               has_shipping: false,
             })
           } else {
+            // Since the variant is eager loaded, we are removing it before the line item is being created.
+            delete (item as Partial<LineItem>).variant
             item.has_shipping = false
             item.cart_id = cart.id
             lineItemsToCreate.push(item)
